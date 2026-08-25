@@ -22,9 +22,24 @@ app.use(helmet());
 // Logger
 app.use(morgan("dev"));
 
-// CORS – must specify exact origin (not wildcard) when credentials are sent
+// CORS configuration supporting dynamic Vercel URLs and configurable origins
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : ["http://localhost:5174", "http://localhost:5173", "http://localhost:3000"];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "http://localhost:5174",
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      allowedOrigins.includes("*") ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app")
+    ) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
