@@ -1,9 +1,18 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import toast from "react-hot-toast";
 
-// In dev, Vite proxies /api → http://localhost:5000 (see vite.config.ts).
-// Override with VITE_API_BASE_URL in production (e.g. https://api.yourapp.com/api).
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+// Normalize base URL so http(s)://domain.com automatically appends /api if omitted
+const getBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) return "/api";
+  let normalized = envUrl.trim().replace(/\/$/, "");
+  if (!normalized.endsWith("/api")) {
+    normalized += "/api";
+  }
+  return normalized;
+};
+
+const BASE_URL = getBaseUrl();
 
 export const TOKEN_KEY = "careerverse_token";
 
